@@ -1,23 +1,23 @@
 package com.example.musicplayer;
 
+import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class MusicPlayerActivity extends AppCompatActivity {
 
-    TextView titleTV,currentTimeTV,totalTimeTv;
+    TextView titleTV, artistTv, currentTimeTV,totalTimeTv;
     SeekBar seekBar;
-    ImageView pausePlay,nextBtn,previousBtn,musicIcon;
+    ImageView backButton, pausePlay,nextBtn,previousBtn,musicIcon;
     ArrayList<AudioModel> songsList;
     AudioModel currentSong;
     MediaPlayer mediaPlayer = MyMusicPlayer.getInstace();
@@ -29,6 +29,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
 
         titleTV = findViewById(R.id.song_title);
         titleTV.setSelected(true);
+        artistTv = findViewById(R.id.song_artist);
 
         currentTimeTV = findViewById(R.id.current_time);
         totalTimeTv = findViewById(R.id.total_time);
@@ -37,26 +38,27 @@ public class MusicPlayerActivity extends AppCompatActivity {
         nextBtn = findViewById(R.id.next);
         previousBtn = findViewById(R.id.previous);
         musicIcon = findViewById(R.id.music_icon_big);
+        backButton = findViewById(R.id.go_back);
 
 
-        songsList = (ArrayList<AudioModel>) getIntent().getSerializableExtra("LIST");
+        songsList = (ArrayList<AudioModel>) getIntent().getSerializableExtra("LIST", ArrayList.class);
 
         setResourcesWithMusic();
 
         MusicPlayerActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(mediaPlayer==null){
+                if(mediaPlayer!=null){
                     seekBar.setProgress(mediaPlayer.getCurrentPosition());
                     currentTimeTV.setText(convertToMMSS(mediaPlayer.getCurrentPosition()+""));
 
                     if(mediaPlayer.isPlaying()){
-                        pausePlay.setImageResource(R.drawable.baseline_pause_circle_24);
+                        pausePlay.setImageResource(R.drawable.pause_48);
                     }else{
-                        pausePlay.setImageResource(R.drawable.baseline_play_circle_24);
+                        pausePlay.setImageResource(R.drawable.play_48);
                     }
                 }
-                new Handler().postDelayed(this, 100);
+                new Handler(Looper.getMainLooper()).postDelayed(this, 100);
             }
         });
 
@@ -84,12 +86,19 @@ public class MusicPlayerActivity extends AppCompatActivity {
         currentSong = songsList.get(MyMusicPlayer.currentIndex);
 
         titleTV.setText(currentSong.getTitle());
+        artistTv.setText(currentSong.getArtist());
 
         totalTimeTv.setText(convertToMMSS(currentSong.getDuration()));
+
+        if (currentSong.getSongCover() != null)
+            musicIcon.setImageBitmap(BitmapFactory.decodeByteArray(currentSong.getSongCover(), 0, currentSong.getSongCover().length));
+        else
+            musicIcon.setImageResource(R.drawable.cover_placeholder);
 
         pausePlay.setOnClickListener(v-> pausePlay());
         nextBtn.setOnClickListener(v-> playNextSong());
         previousBtn.setOnClickListener(v-> playPreviousSong());
+        backButton.setOnClickListener(v-> goBack());
 
         playMusic();
     }
@@ -109,18 +118,18 @@ public class MusicPlayerActivity extends AppCompatActivity {
     }
 
     private void playNextSong(){
-        if(MyMusicPlayer.currentIndex== songsList.size() - 1)
+        if(MyMusicPlayer.currentIndex == songsList.size() - 1)
             return;
         MyMusicPlayer.currentIndex += 1;
-        mediaPlayer.release();
+        mediaPlayer.reset();
         setResourcesWithMusic();
     }
 
     private void playPreviousSong(){
-        if(MyMusicPlayer.currentIndex== 0)
+        if(MyMusicPlayer.currentIndex == 0)
             return;
         MyMusicPlayer.currentIndex -= 1;
-        mediaPlayer.release();
+        mediaPlayer.reset();
         setResourcesWithMusic();
     }
 
@@ -132,12 +141,19 @@ public class MusicPlayerActivity extends AppCompatActivity {
         }
     }
 
+    private void goBack(){
+        if(mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+            mediaPlayer.reset();
+        }
+        finish();
+    }
 
     public static String convertToMMSS(String duration){
         Long millis = Long.parseLong(duration);
-        return String.format("02d:%02d",
+        return String.format("%02d:%02d",
                 TimeUnit.MILLISECONDS.toMinutes(millis) % TimeUnit.HOURS.toMinutes(1),
-                TimeUnit.MILLISECONDS.toSeconds(millis) % TimeUnit.HOURS.toSeconds(1));
+                TimeUnit.MILLISECONDS.toSeconds(millis) % TimeUnit.MINUTES.toSeconds(1));
     }
 
 }

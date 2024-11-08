@@ -2,6 +2,7 @@ package com.example.musicplayer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,9 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
     public void onBindViewHolder( MusicListAdapter.ViewHolder holder, int position) {
         AudioModel songData = songsList.get(position);
         holder.titleTextView.setText(songData.getTitle());
+        holder.artistTextView.setText(songData.getArtist());
+        if (songData.getSongCover() != null)
+            holder.iconImageView.setImageBitmap(BitmapFactory.decodeByteArray(songData.getSongCover(), 0, songData.getSongCover().length));
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,11 +64,13 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
 
         TextView titleTextView;
         ImageView iconImageView;
+        TextView artistTextView;
 
         public ViewHolder(View itemView){
             super(itemView);
             titleTextView = itemView.findViewById(R.id.music_title_text);
             iconImageView = itemView.findViewById(R.id.icon_view);
+            artistTextView = itemView.findViewById(R.id.music_artist_text);
         }
 
     }

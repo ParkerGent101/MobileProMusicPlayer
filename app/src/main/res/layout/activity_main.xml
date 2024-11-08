@@ -5,14 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
-    android:padding="16dp">
+    android:background="#cfd1dc">
 
-    <!-- Song Title -->
     <TextView
-        android:id="@+id/songTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-<<<<<<< HEAD
         android:id="@+id/songs_text"
         android:textColor="@color/black"
         android:text="SONGS"
@@ -29,112 +26,10 @@
         android:layout_centerInParent="true"
         android:visibility="gone"/>
 
-
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/recycler_view"
-        android:layout_below="@+id/songs_text"/>
+        android:layout_below="@id/songs_text"/>
 
 </RelativeLayout>
-=======
-        android:text="Song Title"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:textColor="#000000"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:paddingTop="16dp" />
-
-    <!-- SeekBar for song progress -->
-    <SeekBar
-        android:id="@+id/seekBar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/songTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="24dp"
-        android:max="100" />
-
-    <!-- Time Played -->
-    <TextView
-        android:id="@+id/timePlayed"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0:00"
-        app:layout_constraintTop_toBottomOf="@+id/seekBar"
-        app:layout_constraintStart_toStartOf="parent"
-        android:paddingTop="8dp" />
-
-    <!-- Time Remaining -->
-    <TextView
-        android:id="@+id/timeRemaining"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="3:45"
-        app:layout_constraintTop_toBottomOf="@+id/seekBar"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:paddingTop="8dp" />
-
-    <!-- Control Buttons (Previous, Play/Pause, Next) -->
-    <LinearLayout
-        android:id="@+id/controlButtons"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@+id/timePlayed"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="24dp">
-
-        <!-- Previous Button -->
-        <ImageButton
-            android:id="@+id/prevButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_previous"
-            android:contentDescription="Previous"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="16dp" />
-
-        <!-- Play/Pause Button -->
-        <ImageButton
-            android:id="@+id/playPauseButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_play"
-            android:contentDescription="Play/Pause"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="16dp" />
-
-        <!-- Next Button -->
-        <ImageButton
-            android:id="@+id/nextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_next"
-            android:contentDescription="Next"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="16dp" />
-    </LinearLayout>
-
-    <!-- Song Library (Scrollable List of Songs) -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/songLibrary"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/controlButtons"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:orientation="vertical"
-        android:layout_marginTop="16dp"
-        android:scrollbars="vertical"
-        tools:listitem="@layout/song_item" /> <!-- Placeholder for song item layout -->
-
-</androidx.constraintlayout.widget.ConstraintLayout>
->>>>>>> d4da379b61a6c32d229eb569ad7c71953adde01c

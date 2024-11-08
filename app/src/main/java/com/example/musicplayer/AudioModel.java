@@ -5,12 +5,16 @@ import java.io.Serializable;
 public class AudioModel implements Serializable {
     String path;
     String title;
+    String artist;
     String duration;
+    byte[] songCover;
 
-    public AudioModel(String path, String title, String duration) {
+    public AudioModel(String path, String title, String artist, String duration, byte[] songCover) {
         this.path = path;
         this.title = title;
+        this.artist = artist;
         this.duration = duration;
+        this.songCover = songCover;
     }
 
     public String getPath() {
@@ -29,6 +33,10 @@ public class AudioModel implements Serializable {
         this.title = title;
     }
 
+    public String getArtist() { return artist; }
+
+    public void setArtist(String artist) { this.artist = artist; }
+
     public String getDuration() {
         return duration;
     }
@@ -36,4 +44,8 @@ public class AudioModel implements Serializable {
     public void setDuration(String duration) {
         this.duration = duration;
     }
+
+    public byte[] getSongCover() { return songCover; }
+
+    public void setSongCover(byte[] songCover) { this.songCover = songCover; }
 }
