@@ -8,33 +8,40 @@
     android:background="#cfd1dc"
     tools:context=".MusicPlayerActivity">
 
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
+        android:padding="15dp"
+        android:background="@color/white"
+        android:layout_alignParentTop="true">
+
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/go_back"
         android:src="@drawable/go_back_48"
-        android:padding="15dp"
-        android:layout_above="@id/music_icon_big"
-        android:layout_marginBottom="0dp"/>
+        android:layout_centerVertical="true"/>
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="66dp"
+        android:layout_height="66dp"
         android:id="@+id/logo"
         android:src="@drawable/logo_96"
-        android:layout_above="@id/music_icon_big"
-        android:layout_alignParentEnd="true"
-        android:paddingEnd="15dp"
-        android:paddingTop="15dp"/>
+        android:layout_alignParentEnd="true" />
+
+    </RelativeLayout>
 
     <ImageView
         android:layout_width="480dp"
-        android:layout_height="480dp"
+        android:layout_height="400dp"
+        android:maxHeight="400dp"
         android:layout_centerHorizontal="true"
         android:id="@+id/music_icon_big"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:layout_above="@+id/controls"
+        android:layout_below="@+id/header"
         android:src="@drawable/cover_placeholder"/>
 
     <RelativeLayout
@@ -164,7 +171,7 @@
                 android:layout_centerVertical="true"
                 android:layout_alignParentEnd="true"
                 android:src="@drawable/queue_24"
-                android:id='@+id/queue'/>
+                android:id='@+id/add_to_playlist'/>
 
         </RelativeLayout>
 

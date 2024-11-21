@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
+    tools:context=".LibraryActivity"
     android:background="#cfd1dc">
 
     <TextView
@@ -12,11 +12,67 @@
         android:layout_height="wrap_content"
         android:id="@+id/songs_text"
         android:textColor="@color/black"
-        android:text="SONGS"
-        android:textSize="20dp"
+        android:text="Music Library"
+        android:textSize="36dp"
         android:textStyle="bold"
         android:padding="10dp"
         android:layout_centerHorizontal="true"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/options_bar"
+        android:layout_below="@id/songs_text"
+        android:padding="10dp"
+        android:layout_centerHorizontal="true">
+
+    <TextView
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/songs_button"
+        android:textColor="@color/black"
+        android:text="Songs"
+        android:textSize="16sp"
+        android:paddingStart="0dp"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/songs_black_bar"
+        android:src="@drawable/blackbar"
+        android:layout_below="@id/songs_button"
+        android:paddingStart="2dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/playlists_button"
+        android:textColor="@color/black"
+        android:text="Playlists"
+        android:textSize="16sp"
+        android:layout_toEndOf="@id/songs_button"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/playlists_black_bar"
+        android:src="@drawable/blackbar"
+        android:layout_below="@id/playlists_button"
+        android:layout_toEndOf="@id/songs_button"
+        android:paddingStart="9dp"/>
+
+    </RelativeLayout>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/menu"
+        android:src="@drawable/three_dots"
+        android:layout_toEndOf="@id/options_bar"
+        android:layout_below="@id/songs_text"
+        android:layout_alignParentRight="true"
+        android:padding="14dp"
+        android:layout_marginStart="12dp"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -30,6 +86,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/recycler_view"
-        android:layout_below="@id/songs_text"/>
-
+        android:layout_below="@id/options_bar"/>
 </RelativeLayout>
