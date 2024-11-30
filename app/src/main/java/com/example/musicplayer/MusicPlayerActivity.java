@@ -1,35 +1,49 @@
 package com.example.musicplayer;
 
-import android.media.MediaPlayer;
+import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.Handler;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AppCompatActivity;
-
-import java.io.IOException;
+import androidx.lifecycle.ViewModelProvider;
+import com.example.musicplayer.Repository.Song;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 public class MusicPlayerActivity extends AppCompatActivity {
-
-    TextView titleTV,currentTimeTV,totalTimeTv;
-    SeekBar seekBar;
-    ImageView pausePlay,nextBtn,previousBtn,musicIcon;
-    ArrayList<AudioModel> songsList;
-    AudioModel currentSong;
-    MediaPlayer mediaPlayer = MyMusicPlayer.getInstace();
+    private TextView titleTV, artistTv, currentTimeTV, totalTimeTv;
+    private SeekBar seekBar;
+    private ImageView pausePlay, nextBtn, previousBtn, musicIcon, backBtn, addToPlaylistBtn;
+    private ImageView shuffleBtn, loopBtn;
+    private MusicPlayerViewModel musicPlayerViewModel;
 
     @Override
-    protected  void onCreate(Bundle saveInstaceState) {
-        super.onCreate(saveInstaceState);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_music_player);
 
-        titleTV = findViewById(R.id.song_title);
-        titleTV.setSelected(true);
+        // Initialize UI components
+        initUIComponents();
 
+        // Initialize ViewModel
+        musicPlayerViewModel = new ViewModelProvider(this).get(MusicPlayerViewModel.class);
+        ArrayList<Song> songsList = (ArrayList<Song>) getIntent().getSerializableExtra("LIST");
+        musicPlayerViewModel.setSongsList(songsList);
+
+        // Set up observers
+        setupObservers();
+
+        // Set up click listeners
+        setupClickListeners();
+
+        // Set up seek bar listener
+        setupSeekBar();
+    }
+
+    private void initUIComponents() {
+        titleTV = findViewById(R.id.song_title);
+        artistTv = findViewById(R.id.song_artist);
         currentTimeTV = findViewById(R.id.current_time);
         totalTimeTv = findViewById(R.id.total_time);
         seekBar = findViewById(R.id.seek_bar);
@@ -37,107 +51,105 @@ public class MusicPlayerActivity extends AppCompatActivity {
         nextBtn = findViewById(R.id.next);
         previousBtn = findViewById(R.id.previous);
         musicIcon = findViewById(R.id.music_icon_big);
+        backBtn = findViewById(R.id.go_back);
+        addToPlaylistBtn = findViewById(R.id.add_to_playlist);
+        shuffleBtn = findViewById(R.id.shuffle);
+        loopBtn = findViewById(R.id.loop);
 
+        // Enable marquee effect for title
+        titleTV.setSelected(true);
+    }
 
-        songsList = (ArrayList<AudioModel>) getIntent().getSerializableExtra("LIST");
+    private void setupObservers() {
+        // Shuffle state observer
+        musicPlayerViewModel.isShuffleEnabled().observe(this, isShuffleEnabled ->
+                shuffleBtn.setImageResource(isShuffleEnabled ? R.drawable.shuffle_24: R.drawable.no_shuffle_24)
+        );
 
-        setResourcesWithMusic();
+        // Loop mode observer
+        musicPlayerViewModel.getLoopMode().observe(this, loopMode -> {
+            int drawableId;
+            switch (loopMode) {
+                case 1: // Loop all
+                    drawableId = R.drawable.loop_24;
+                    break;
+                case 2: // Loop one, need to update drawables just made AI generated ones to differentiate which is running at a given time
+                    drawableId = R.drawable.loop_24_song;
+                    break;
+                default: // No loop
+                    drawableId = R.drawable.loop_24_pl;
+            }
+            loopBtn.setImageResource(drawableId);
+        });
 
-        MusicPlayerActivity.this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if(mediaPlayer==null){
-                    seekBar.setProgress(mediaPlayer.getCurrentPosition());
-                    currentTimeTV.setText(convertToMMSS(mediaPlayer.getCurrentPosition()+""));
-
-                    if(mediaPlayer.isPlaying()){
-                        pausePlay.setImageResource(R.drawable.baseline_pause_circle_24);
-                    }else{
-                        pausePlay.setImageResource(R.drawable.baseline_play_circle_24);
-                    }
-                }
-                new Handler().postDelayed(this, 100);
+        // Current song observer
+        musicPlayerViewModel.getCurrentSong().observe(this, song -> {
+            if (song != null) {
+                updateSongDetails(song);
             }
         });
 
+        // Play/pause state observer
+        musicPlayerViewModel.isPlaying().observe(this, isPlaying ->
+                pausePlay.setImageResource(isPlaying ? R.drawable.pause_48 : R.drawable.play_48)
+        );
+
+        // Current time observer
+        musicPlayerViewModel.getCurrentTime().observe(this, time -> {
+            if (time != null) {
+                seekBar.setProgress(time);
+                currentTimeTV.setText(MusicPlayerViewModel.convertToMMSS(String.valueOf(time)));
+            }
+        });
+    }
+
+    private void setupClickListeners() {
+        pausePlay.setOnClickListener(v -> musicPlayerViewModel.togglePlayPause());
+        nextBtn.setOnClickListener(v -> musicPlayerViewModel.playNextSong());
+        previousBtn.setOnClickListener(v -> musicPlayerViewModel.playPreviousSong());
+        shuffleBtn.setOnClickListener(v -> musicPlayerViewModel.toggleShuffle());
+        loopBtn.setOnClickListener(v -> musicPlayerViewModel.toggleLoop());
+        backBtn.setOnClickListener(v -> finish());
+        addToPlaylistBtn.setOnClickListener(v -> {
+            Song currentSong = musicPlayerViewModel.getCurrentSong().getValue();
+            if (currentSong != null) {
+                Intent intent = new Intent(MusicPlayerActivity.this, AddSongToPlayListActivity.class);
+                intent.putExtra("song", currentSong);
+                startActivity(intent);
+                musicPlayerViewModel.stopPlaying();
+                finish();
+            }
+        });
+    }
+
+    private void setupSeekBar() {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if(mediaPlayer!=null && fromUser){
-                    mediaPlayer.seekTo(progress);
+                if (fromUser) {
+                    musicPlayerViewModel.seekTo(progress);
                 }
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
+            public void onStartTrackingTouch(SeekBar seekBar) {}
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
+            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
     }
 
-    void setResourcesWithMusic(){
-        currentSong = songsList.get(MyMusicPlayer.currentIndex);
-
-        titleTV.setText(currentSong.getTitle());
-
-        totalTimeTv.setText(convertToMMSS(currentSong.getDuration()));
-
-        pausePlay.setOnClickListener(v-> pausePlay());
-        nextBtn.setOnClickListener(v-> playNextSong());
-        previousBtn.setOnClickListener(v-> playPreviousSong());
-
-        playMusic();
-    }
-
-    private void playMusic(){
-
-        mediaPlayer.reset();
-        try{
-            mediaPlayer.setDataSource(currentSong.getPath());
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-            seekBar.setProgress(0);
-            seekBar.setMax(mediaPlayer.getDuration());
-        } catch (IOException e){
-            e.printStackTrace();
+    private void updateSongDetails(Song song) {
+        seekBar.setProgress(0);
+        seekBar.setMax(musicPlayerViewModel.getDuration());
+        titleTV.setText(song.getTitle());
+        artistTv.setText(song.getArtist());
+        totalTimeTv.setText(MusicPlayerViewModel.convertToMMSS(song.getDuration()));
+        // Set song cover image
+        if (song.getSongCover() != null) {
+            musicIcon.setImageBitmap(BitmapFactory.decodeByteArray(song.getSongCover(), 0, song.getSongCover().length));
+        } else {
+            musicIcon.setImageResource(R.drawable.cover_placeholder);
         }
     }
-
-    private void playNextSong(){
-        if(MyMusicPlayer.currentIndex== songsList.size() - 1)
-            return;
-        MyMusicPlayer.currentIndex += 1;
-        mediaPlayer.release();
-        setResourcesWithMusic();
-    }
-
-    private void playPreviousSong(){
-        if(MyMusicPlayer.currentIndex== 0)
-            return;
-        MyMusicPlayer.currentIndex -= 1;
-        mediaPlayer.release();
-        setResourcesWithMusic();
-    }
-
-    private void pausePlay(){
-        if(mediaPlayer.isPlaying())
-            mediaPlayer.pause();
-        else{
-            mediaPlayer.start();
-        }
-    }
-
-
-    public static String convertToMMSS(String duration){
-        Long millis = Long.parseLong(duration);
-        return String.format("02d:%02d",
-                TimeUnit.MILLISECONDS.toMinutes(millis) % TimeUnit.HOURS.toMinutes(1),
-                TimeUnit.MILLISECONDS.toSeconds(millis) % TimeUnit.HOURS.toSeconds(1));
-    }
-
 }
