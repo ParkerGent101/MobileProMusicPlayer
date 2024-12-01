@@ -54,4 +54,8 @@ public class SongRepository {
         return songDao.songExists(uri, playListId);
     }
 
+    public Song getSong(int songId) {
+        return songDao.getSong(songId);
+    }
+
 }

@@ -1,8 +1,10 @@
 package com.example.musicplayer;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 public class PlayListActivity extends AppCompatActivity{
 
     //Intitialize variables
+    private MusicPlayerViewModel musicPlayerViewModel;
     private SongViewModel songViewModel;
     private PlayListViewModel playListViewModel;
     private int playListId;
@@ -22,6 +25,12 @@ public class PlayListActivity extends AppCompatActivity{
     RecyclerView recyclerView;
     TextView noMusicTextView, playListNameTextView;
     ImageView backBtn;
+
+    LinearLayout musicControlPanel;
+    TextView songTitle;
+    ImageView playPause, previous, next;
+    ArrayList<Song> currentSongList;
+
 
     @Override
     protected  void onCreate(Bundle savedInstanceState){
@@ -57,6 +66,99 @@ public class PlayListActivity extends AppCompatActivity{
         backBtn.setOnClickListener( v-> {
                 finish();
         });
+
+
+        musicPlayerViewModel = MusicPlayerViewModel.getInstance(getApplication());
+        // Music Controller
+        songTitle = findViewById(R.id.songTitle);
+        playPause = findViewById(R.id.pause_play);
+        previous = findViewById(R.id.previous);
+        next = findViewById(R.id.next);
+        musicControlPanel = findViewById(R.id.control_panel);
+
+        songTitle.setSelected(true);
+
+        playPause.setOnClickListener(v -> {
+            musicPlayerViewModel.togglePlayPause();
+        });
+
+        previous.setOnClickListener(v -> {
+            musicPlayerViewModel.playPreviousSong();
+        });
+
+        next.setOnClickListener(v -> {
+            musicPlayerViewModel.playNextSong();
+        });
+
+        musicPlayerViewModel.getCurrentSongList().observe(this, songList -> {
+            currentSongList = songList;
+        });
+
+        musicPlayerViewModel.getCurrentSong().observe(this, song -> {
+            songTitle.setText(song.getTitle());
+        });
+
+        musicPlayerViewModel.isPlaying().observe(this, isPlaying -> {
+            if (isPlaying) {
+                playPause.setImageResource(R.drawable.pause_48);
+            } else {
+                playPause.setImageResource(R.drawable.play_48);
+            }
+        });
+
+        musicControlPanel.setOnClickListener(v -> {
+            if(currentSongList != null) {
+                Intent intent = new Intent(this, MusicPlayerActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        songTitle.setSelected(true);
+
+        playPause.setOnClickListener(v -> {
+            musicPlayerViewModel.togglePlayPause();
+        });
+
+        previous.setOnClickListener(v -> {
+            musicPlayerViewModel.playPreviousSong();
+        });
+
+        next.setOnClickListener(v -> {
+            musicPlayerViewModel.playNextSong();
+        });
+
+        musicPlayerViewModel.getCurrentSongList().observe(this, songList -> {
+            currentSongList = songList;
+        });
+
+        musicPlayerViewModel.getCurrentSong().observe(this, song -> {
+            songTitle.setText(song.getTitle());
+        });
+
+        musicPlayerViewModel.isPlaying().observe(this, isPlaying -> {
+            if (isPlaying) {
+                playPause.setImageResource(R.drawable.pause_48);
+            } else {
+                playPause.setImageResource(R.drawable.play_48);
+            }
+        });
+
+        musicControlPanel.setOnClickListener(v -> {
+            if(currentSongList != null) {
+                Intent intent = new Intent(this, MusicPlayerActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
+            }
+        });
+
     }
 
     public void deleteSong(Song song) {

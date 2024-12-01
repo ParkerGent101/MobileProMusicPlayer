@@ -7,14 +7,14 @@ import androidx.room.ForeignKey;
 import java.io.Serializable;
 
 @Entity(tableName = "playlist_songs")
-        //,foreignKeys = @ForeignKey(entity = PlayList.class, parentColumns = "playlistId", childColumns = "playlistId", onDelete = ForeignKey.CASCADE))
+
 public class Song implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
     public int songId;
 
     public String uri;
-    public String title; // Optional
+    public String title;
     public String artist;
     public String duration;
     public byte[] songCover;
@@ -28,6 +28,8 @@ public class Song implements Serializable {
         this.songCover = songCover;
         this.playlistId = playlistId;
     }
+
+    public int getSongId() { return songId; }
 
     public String getUri() { return uri; }
 

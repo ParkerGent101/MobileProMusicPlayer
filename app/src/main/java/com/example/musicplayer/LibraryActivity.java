@@ -9,9 +9,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.Media;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -37,12 +39,18 @@ public class LibraryActivity extends AppCompatActivity{
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private SongViewModel songViewModel;
     private PlayListViewModel playListViewModel;
+    private MusicPlayerViewModel musicPlayerViewModel;
     RecyclerView recyclerView;
     TextView noMusicTextView, songsBtnText, playListsBtnText;
     ImageView songsBar, playListBar, menuBtn;
 
+    LinearLayout musicControlPanel;
+    TextView songTitle;
+    ImageView playPause, previous, next;
+    ArrayList<Song> currentSongList;
+
     @Override
-    protected  void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -51,6 +59,7 @@ public class LibraryActivity extends AppCompatActivity{
         noMusicTextView = findViewById(R.id.no_songs_text);
         songViewModel = new ViewModelProvider(this).get(SongViewModel.class);
         playListViewModel = new ViewModelProvider(this).get(PlayListViewModel.class);
+        musicPlayerViewModel = MusicPlayerViewModel.getInstance(getApplication());
         songsBtnText = findViewById(R.id.songs_button);
         playListsBtnText = findViewById(R.id.playlists_button);
         songsBar = findViewById(R.id.songs_black_bar);
@@ -78,6 +87,98 @@ public class LibraryActivity extends AppCompatActivity{
         songsBtnText.setOnClickListener(v -> displaySongs());
         playListsBtnText.setOnClickListener(v -> displayPlaylists());
         menuBtn.setOnClickListener(v -> showPopUpMenu());
+
+        // Music Controller
+        songTitle = findViewById(R.id.songTitle);
+        playPause = findViewById(R.id.pause_play);
+        previous = findViewById(R.id.previous);
+        next = findViewById(R.id.next);
+        musicControlPanel = findViewById(R.id.control_panel);
+
+        songTitle.setSelected(true);
+
+        playPause.setOnClickListener(v -> {
+            musicPlayerViewModel.togglePlayPause();
+        });
+
+        previous.setOnClickListener(v -> {
+            musicPlayerViewModel.playPreviousSong();
+        });
+
+        next.setOnClickListener(v -> {
+            musicPlayerViewModel.playNextSong();
+        });
+
+        musicPlayerViewModel.getCurrentSongList().observe(this, songList -> {
+            currentSongList = songList;
+        });
+
+        musicPlayerViewModel.getCurrentSong().observe(this, song -> {
+            songTitle.setText(song.getTitle());
+        });
+
+        musicPlayerViewModel.isPlaying().observe(this, isPlaying -> {
+            if (isPlaying) {
+                playPause.setImageResource(R.drawable.pause_48);
+            } else {
+                playPause.setImageResource(R.drawable.play_48);
+            }
+        });
+
+        musicControlPanel.setOnClickListener(v -> {
+            if(currentSongList != null) {
+                Intent intent = new Intent(this, MusicPlayerActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+        });
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        songTitle.setSelected(true);
+
+        //Display all the songs
+        displaySongs();
+
+        playPause.setOnClickListener(v -> {
+            musicPlayerViewModel.togglePlayPause();
+        });
+
+        previous.setOnClickListener(v -> {
+            musicPlayerViewModel.playPreviousSong();
+        });
+
+        next.setOnClickListener(v -> {
+            musicPlayerViewModel.playNextSong();
+        });
+
+        musicPlayerViewModel.getCurrentSongList().observe(this, songList -> {
+            currentSongList = songList;
+        });
+
+        musicPlayerViewModel.getCurrentSong().observe(this, song -> {
+            songTitle.setText(song.getTitle());
+        });
+
+        musicPlayerViewModel.isPlaying().observe(this, isPlaying -> {
+            if (isPlaying) {
+                playPause.setImageResource(R.drawable.pause_48);
+            } else {
+                playPause.setImageResource(R.drawable.play_48);
+            }
+        });
+
+        musicControlPanel.setOnClickListener(v -> {
+            if(currentSongList != null) {
+                Intent intent = new Intent(this, MusicPlayerActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+        });
 
     }
 
@@ -108,11 +209,10 @@ public class LibraryActivity extends AppCompatActivity{
         playListViewModel.getAllPlayLists().observe(this, playLists -> {
             ArrayList<PlayList> playListsList = new ArrayList<>(playLists);
             playListsList.remove(0);
-            noMusicTextView.setVisibility(View.INVISIBLE);
 
             songViewModel.getAllSongs().observe(this, songs -> {
                 ArrayList<Song> songsList = new ArrayList<>(songs);
-                final PlayListAdapter adapter = new com.example.musicplayer.PlayListAdapter(playListsList, songsList, this);
+                final PlayListAdapter adapter = new PlayListAdapter(playListsList, songsList, this);
                 recyclerView.setAdapter(adapter);
             });
         });
@@ -189,6 +289,7 @@ public class LibraryActivity extends AppCompatActivity{
     public void deletePlaylist(PlayList playlist) {
         songViewModel.clearPlayList(playlist.getId());
         playListViewModel.delete(playlist);
+        displaySongs();
     }
 
 

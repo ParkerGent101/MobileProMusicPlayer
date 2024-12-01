@@ -32,4 +32,7 @@ public interface SongDao {
 
     @Query("SELECT EXISTS (SELECT 1 FROM playlist_songs WHERE uri = :uri AND playListId = :playListId)")
     boolean songExists(String uri, int playListId);
+
+    @Query("SELECT * FROM playlist_songs WHERE songId = :songId")
+    Song getSong(int songId);
 }

@@ -33,4 +33,6 @@ public class SongViewModel extends AndroidViewModel {
 
     public List<Song> getCurrentSongsForPlayList(int playListId) { return songRepository.getCurrentSongsForPlayList(playListId); }
 
+    public Song getSong(int songId) { return songRepository.getSong(songId); }
+
 }
